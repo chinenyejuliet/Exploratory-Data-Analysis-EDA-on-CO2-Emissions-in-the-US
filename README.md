@@ -250,6 +250,8 @@ SELECT
         sector_name,  
         CONCAT (ROUND (ROUND (SUM (emission_value)/ (SELECT SUM (emission_value) FROM emissions), 4) *100,2),'%') AS "percentage emission"  
 FROM emissions GROUP BY decade, sector_name;
+```
+
 ## Exploratory Data Analysis 
 
 EDA was Performed to uncover the following patterns before building the dashboard:
