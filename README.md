@@ -230,7 +230,8 @@ SELECT
 FROM emissions
 GROUP BY emission_year; 
 ```
-- How emission of Carbon dioxide emission in million metric tons (MMT) changed over decades.
+
+2. How emission of Carbon dioxide emission in million metric tons (MMT) changed over decades.
 
 ```
 SELECT 
@@ -239,7 +240,9 @@ SELECT
 FROM emissions 
 GROUP BY decade;
 ```
-- To calculate the percentage contribution of carbon dioxide in million metric tons (MMT) emission by each sector in all decades. 
+
+3. Calculate the percentage contribution of carbon di oxide in million metric tons emission by each sector in all decades.
+  
 ```
 SELECT  
         CONCAT (FLOOR (emission_year/10) * 10, "-",
