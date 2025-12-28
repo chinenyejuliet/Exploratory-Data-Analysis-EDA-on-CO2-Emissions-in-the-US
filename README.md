@@ -155,4 +155,151 @@ SELECT
 DISTINCT fuel_name 
 FROM emissions; 
 ```
+- Renamed values in the sector_name field to shorter, Since "Electric Power carbon emissions", "Industrial Power carbon dioxide emissions", "Commercial Power carbon dioxide emissions" and "Residential carbon dioxide emissions" are all sectors of carbon dioxide emissions, it is ideal to rename them to "Electric power", "Industrial", "Commercial" and "Residential" respectively, 
+for easier readability in my visualizations. This was done by the following command 
+```
+UPDATE emissions 
+SET sector_name = CASE 
+                    WHEN sector_name = 'Electric Power carbon dioxide emissions' THEN 'Electric Power' 
+                    WHEN sector_name = 'Residential carbon dioxide emissions' THEN 'Residential' 
+                    WHEN sector_name = 'Transportation carbon dioxide emissions' THEN 'Transportation' 
+                    WHEN sector_name = 'Industrial carbon dioxide emissions' THEN 'Industrial' 
+                    WHEN sector_name = 'Commercial carbon dioxide emissions' THEN 'Commercial' 
+         ELSE sector_name 
+         END;
+```
+***
+
+## Summary Statistics 
+- **Basic summary statistics for overall CO₂  emission:**
+```
+  SELECT  
+         ROUND (SUM (emission_value),2) AS `SUM`, 
+         ROUND (AVG (emission_value),2) AS "MEAN", 
+         COUNT (emission_year) AS `COUNTS`, 
+         ROUND (MAX (emission_value),2) AS `MAX`,  
+         MIN (emission_value) AS `MIN` 
+FROM emissions;
+```
+
+<img width="286" height="135" alt="histt" src="https://github.com/user-attachments/assets/1bf7ba87-16f5-4dd4-a95c-a9ac9a4abad6" />
+
+Table 1: Basic summary statistics of total CO₂ emission in million metric tons. 
+
+**NOTE:** Most SQL databases do not provide a built-in MEDIAN function. However, the median was 
+calculated using a combination of SQL window functions or aggregation. Here's how it was 
+achieved: 
+```
+WITH CTE AS ( 
+        SELECT  
+           emission_value, 
+           ROW_NUMBER() OVER (ORDER BY emission_value) AS row_num, 
+           COUNT(*) OVER () AS total_rows 
+        FROM emissions 
+) 
+SELECT  
+      ROUND (CASE  
+                WHEN total_rows % 2 = 1 THEN (
+                    SELECT
+                          emission_value  
+                    FROM CTE 
+                    WHERE row_num = FLOOR (total_rows / 2) + 1
+                 ) 
+            ELSE  
+                  (
+                  SELECT
+                      AVG(emission_value) 
+                  FROM CTE 
+                  WHERE row_num IN (total_rows / 2, (total_rows / 2) + 1)
+                  ) 
+      END,2) AS `Median` 
+FROM CTE 
+LIMIT 1; 
+```
+**Observation:**
+This statistical summary reveals considerable variability in emissions, with the mean being significantly higher than the median, suggesting the presence of outliers or extreme emission values.
+
+***
+## Data Analysis
+Key metrics calculated:
+1. Calculate the total amount of carbon di oxide emissions in million metric tons and  observe the trend.
+```
+SELECT
+      emission_year, 
+      ROUND (SUM (emission_value),2) AS "total_value" 
+FROM emissions
+GROUP BY emission_year; 
+```
+- How emission of Carbon dioxide emission in million metric tons (MMT) changed over decades.
+
+```
+SELECT 
+    CONCAT(FLOOR(emission_year/10) * 10, "-", FLOOR (emission_year/10) * 10 + 9) AS "decade", 
+    ROUND (AVG (emission_value),2) AS "Average_emission" 
+FROM emissions 
+GROUP BY decade;
+```
+- To calculate the percentage contribution of carbon dioxide in million metric tons (MMT) emission by each sector in all decades. 
+```
+SELECT  
+        CONCAT (FLOOR (emission_year/10) * 10, "-",
+        FLOOR (emission_year/10) * 10 + 9) AS "decade",  
+        sector_name,  
+        CONCAT (ROUND (ROUND (SUM (emission_value)/ (SELECT SUM (emission_value) FROM emissions), 4) *100,2),'%') AS "percentage emission"  
+FROM emissions GROUP BY decade, sector_name;
+## Exploratory Data Analysis 
+
+EDA was Performed to uncover the following patterns before building the dashboard:
+- CO2 emission trend in MMT
+- Total CO2 emitted in MMT across years
+- Emission distribution across sectors
+- Distribution of emission fuel type
+- CO2 emission across states
+
+*** 
+## Dashboard 
+The analysis was visualized in Excel dashboard.
+
+<img width="800" height="435" alt="emission dashboard" src="https://github.com/user-attachments/assets/15e997cb-6d2d-48c2-bbd9-ac5ca64b75f5" />
+ 
+
+***
+
+ ## Key Findings
+- The comparison between CO₂ emissions in 2020-2021 and the current decade (2020 - 2029) reveals significant differences, likely due to incomplete data for the decade. 
+- In 2020-2021, Transportation contributed 37%, a much higher figure than the 1.30% previously reported for the current decade, reinforcing its role as a major emitter. 
+- Similarly, Electric Power accounted for 31% in 2020-2021, while the earlier decade figure was only 0.72%, highlighting a large discrepancy. 
+- The Industrial sector contributed 20% in the 2020-2021 period compared to 1.12% in the decade’s earlier data, again reflecting incomplete reporting.  
+- Residential and Commercial emissions also show notable differences, with 7% and 5% in 2020-2021 compared to 0.18% and 0.24% respectively for the current decade. 
+- Overall, the 2020-2021 data confirms that Transportation and Electric Power remain the largest contributors to CO₂ emissions, with significant shares from the Industrial, 
+Residential and Commercial sectors. 
+- The much lower values reported so far for the 2020-2029 decade suggest incomplete data and it is expected that the full decade's trends will align more closely with the proportions observed in the 2020-2021 period as additional data becomes available. 
+
+***
+## Recommendation 
+One of the major objectives of analyzing the emission of CO₂ is to understand and manage their impact on the environment. By identifying trends, sources, and sectors contributing to emissions, we can: 
+- Generate data-driven insights help encourage the adoption of clean energy, efficient transportation and sustainable industrial practices. 
+- Use data analytics to continuously monitor CO₂ emissions across sectors and decades. 
+- Discover industries or regions with the highest emissions helps focus efforts on areas with the most significant environmental impact. 
+- Reducing CO₂ emissions is critical to slowing global warming.
+   
+In 2010-2019 average annual global greenhouse gas emissions were at their highest levels in human history, but the rate of growth has slowed. Without immediate and deep emissions reductions across all sectors, limiting global warming to 1.5°C is beyond reach. Limiting global warming will require major transitions in the energy sector.
+They involved the following:
+- Agriculture, forestry and other land use can provide large-scale emissions reductions and also remove and store carbon dioxide at scale. 
+- A substantial reduction in fossil fuel use, widespread electrification, improved energy efficiency and use of alternative fuels such as hydrogen.
+- Having the right policies, infrastructure and technology in place to enable changes to our lifestyles and behaviour can result in a 40-70% reduction in greenhouse gas emissions by 2050.. 
+- Reducing emissions in industry will involve using materials more efficiently, reusing and recycling products and minimizing waste. 
+- Cities and other urban areas also offer significant opportunities for emissions reductions. These can be achieved through lower energy consumption (such as 
+by creating compact, walkable cities), electrification of transport in combination with low-emission energy sources and enhanced carbon uptake and storage using nature.
+
+***
+
+## Limitations 
+Recent Discrepancies and Incomplete Data: 
+The sharp decline observed in emissions for the 2020-2029 period cannot yet be conclusively attributed to energy transition, as the data for the current decade remains incomplete. These values cannot yet be fully ascertained due to incomplete data availability for the current decade as the decade is still ongoing, the trends may shift. However, the specific data for 2020-2021 shows significantly higher emissions, suggesting that reliance on fossil fuels has persisted in the short term.
+
+
+
+
+
 
