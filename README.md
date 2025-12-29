@@ -51,8 +51,12 @@ Note: This project was designed to demonstrate my SQL skills, as per the instruc
 required using SQL for data cleaning, transformation, and analysis. An in-depth explanation of the project, including methodology and insights, is provided in the uploaded documentation.
 
 ***
+## Tools Used
+Excel - For data Visualization
+MySQL - For data cleaning, data cleaning and EDA.
 
-## Data Preperation
+***
+## Data Preparation
 
 ### Data Importation
 
@@ -220,6 +224,17 @@ LIMIT 1;
 This statistical summary reveals considerable variability in emissions, with the mean being significantly higher than the median, suggesting the presence of outliers or extreme emission values.
 
 ***
+
+## Exploratory Data Analysis 
+
+EDA was Performed to uncover the following patterns before building the dashboard:
+- CO2 emission trend in MMT
+- Total CO2 emitted in MMT across years
+- Emission distribution across sectors
+- Distribution of emission fuel type
+- CO2 emission across states
+***
+  
 ## Data Analysis
 Key metrics calculated:
 1. Calculate the total amount of carbon di oxide emissions in million metric tons and  observe the trend.
@@ -252,14 +267,110 @@ SELECT
 FROM emissions GROUP BY decade, sector_name;
 ```
 
-## Exploratory Data Analysis 
+4. Comparing the above result with the percentage contribution of carbon di oxide in million metric tons emission between 2020 and 2021.
 
-EDA was Performed to uncover the following patterns before building the dashboard:
-- CO2 emission trend in MMT
-- Total CO2 emitted in MMT across years
-- Emission distribution across sectors
-- Distribution of emission fuel type
-- CO2 emission across states
+```
+ SELECT 
+		sector_name,
+		CONCAT(ROUND(ROUND(SUM(emission_value)/(SELECT SUM(emission_value) FROM emissions WHERE emission_year BETWEEN 2020 AND              2021),4)*100,2),'%') AS "percentage emission"
+FROM emissions
+WHERE emission_year BETWEEN 2020 AND 2021
+GROUP BY sector_name;
+```
+5. comparing it with the percentage contribution of carbon di oxide in million metric tons emission by fuel type in all decades.
+
+```
+SELECT	
+		   CONCAT(FLOOR(emission_year/10) * 10, "-", FLOOR (emission_year/10) * 10 + 9) AS "decade",
+       fuel_name,
+       CONCAT(ROUND(ROUND(SUM(emission_value)/(SELECT SUM(emission_value) FROM emissions),4)*100,2),'%') AS "percentage emission"
+FROM emissions
+GROUP BY decade, fuel_name;
+```
+6. Comparing the above result with the percentage contribution of carbon di oxide in million metric tons emission by fuel type between 2020 and 2021.
+
+```
+ SELECT 
+		 fuel_name,
+		 CONCAT(ROUND(ROUND(SUM(emission_value)/(SELECT SUM(emission_value) FROM emissions WHERE emission_year BETWEEN 2020 AND               2021),4)*100,2),'%') AS "percentage emission"
+FROM emissions
+WHERE emission_year BETWEEN 2020 AND 2021
+GROUP BY fuel_name;
+```
+
+7. Total Emission and Percentage change in emission of CO2 from 1970 t0 2021 across all 
+
+```
+WITH CTE AS (
+        SELECT 
+              state_name,
+              ROUND(SUM(emission_value),2) AS 'total_value_97'
+   
+        FROM emissions
+        WHERE emission_year = 1970
+        GROUP BY state_name
+),
+
+CTE2 AS (
+	      SELECT
+             state_name,
+              ROUND(SUM(emission_value),2) AS 'total_value_21'
+   
+        FROM emissions
+        WHERE emission_year = 2021
+        GROUP BY state_name
+)
+SELECT
+	  CTE.state_name,
+    CONCAT(ROUND(((total_value_21 - total_value_97) / total_value_97) * 100, 2), '%') AS 'Percentage_Change'
+FROM CTE
+JOIN CTE2 
+ON CTE.state_name = CTE2.state_name;
+```
+8. Overall sectors contribution of CO2 emission
+   
+```
+SELECT	
+        sector_name,
+        ROUND(SUM(emission_value),2) AS "total_value"
+FROM emissions
+GROUP BY sector_name
+ORDER BY total_value desc;
+```
+
+9. Overall state contribution of CO2 emission.
+
+```
+SELECT	
+        state_name,
+        ROUND(SUM(emission_value),2) AS "total_value"
+FROM emissions
+GROUP BY state_name
+ORDER BY total_value desc;
+```
+
+11. Overall fuel contribution of CO2 emission.
+
+ ```
+SELECT	
+        fuel_name,
+        ROUND(SUM(emission_value),2) AS "total_value"
+FROM emissions
+GROUP BY fuel_name
+ORDER BY total_value desc;
+```
+
+11. contribution of CO2 emission by sectors and fuel type.
+
+```
+SELECT	
+		  sector_name,
+      fuel_name,
+      ROUND(SUM(emission_value),2) AS "total_value"
+FROM emissions
+GROUP BY sector_name,fuel_name
+ORDER BY total_value;
+```
 
 *** 
 ## Dashboard 
