@@ -10,6 +10,11 @@ emissions over time, compare emissions across different states and sectors, and 
 the contribution of various fuel types to overall emissions
 
 ***
+## Tools Used
+Excel - For visualization.
+MySQL - For data cleaning, insight queries and data manipulation.
+
+***
 
 ## Dataset Sources and Description
 
