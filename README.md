@@ -11,8 +11,8 @@ the contribution of various fuel types to overall emissions
 
 ***
 ## Tools Used
-Excel - For visualization.
-MySQL - For data cleaning, insight queries and data manipulation.
+- Excel - For visualization.
+- MySQL - For data cleaning, insight queries and data manipulation.
 
 ***
 
