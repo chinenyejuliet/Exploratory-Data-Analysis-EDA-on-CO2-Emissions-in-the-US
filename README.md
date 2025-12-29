@@ -415,7 +415,7 @@ Recent Discrepancies and Incomplete Data:
 The sharp decline observed in emissions for the 2020-2029 period cannot yet be conclusively attributed to energy transition, as the data for the current decade remains incomplete. These values cannot yet be fully ascertained due to incomplete data availability for the current decade as the decade is still ongoing, the trends may shift. However, the specific data for 2020-2021 shows significantly higher emissions, suggesting that reliance on fossil fuels has persisted in the short term.
 
 
-
-
+### **NOTE:***
+Additional details about this project are provided in the uploaded PDF.
 
 
